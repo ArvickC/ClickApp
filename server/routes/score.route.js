@@ -58,6 +58,21 @@ router.route('/all').get((req, res, next) => {
     })
   })
 
+
+  router.route('/history').get((req, res, next) => {
+    console.log(req.query.name)
+    scoreModel.find({username: req.params.name}, (error, data) => {
+      if (error) {
+        return next(error);
+      } else {
+        res.status(200).json({
+          msg: data
+        })
+      }
+    })
+  })
+
+
 // Update Students
 router.route('/update-score').put((req, res, next) => {
     console.log(req.body.fname)

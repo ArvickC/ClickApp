@@ -15,6 +15,38 @@ const styles = {
       fontSize: "50px",
       fontFamily: "Roboto",
       marginBottom: "150px"
+    },
+    page: {
+        display: 'flex',
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: 'red',
+        width: '100%',
+        height: '100%'
+    },
+    game: {
+        flex: 4,
+        backgroundColor: 'green',
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    scoreBoardHistory: {
+        flex: 1,
+        flexDirection: 'column',
+        backgroundColor: 'blue',
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    scoreBoardTop: {
+        flex: 1,
+        flexDirection: 'column',
+        backgroundColor: 'yellow',
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
     }
   }
 
@@ -55,6 +87,27 @@ class HomePage extends React.Component {
           axios.post(url + '/score/create-score', {username: localStorage.name, clickCount: this.state.clickCount, clickerCPS: this.state.clickerCPS})
         }
 
+        if(localStorage.topScore===undefined) {
+            localStorage.setItem("topScore", this.state.clickerCPS);
+        } else if(this.state.clickerCPS>parseInt(localStorage.topScore)) {
+            localStorage.setItem("topScore", this.state.clickerCPS);
+        }
+
+        if(localStorage.score===undefined) {
+            let s = [];
+            s[0] = this.state.clickerCPS;
+            localStorage.setItem("score", JSON.stringify(s))
+        } else {
+            let s = JSON.parse(localStorage.getItem("score"));
+
+            if(s.length===10) {
+                s.shift();
+            }
+
+            s.push(this.state.clickerCPS);
+            localStorage.setItem("score", JSON.stringify(s));
+        }
+
         setTimeout(this.enableButton, 3000)
         }
     }
@@ -85,8 +138,20 @@ class HomePage extends React.Component {
     render() {
         return(
             <React.Fragment>
-                <ScoreCounter clickScore={this.state.clickCount} counterStyle={styles.scoreCounterStyle} CPS={this.state.clickerCPS} remainingTime={this.state.time}/>
-                <ClickButton buttonStyle={styles.clickButtonStyle} clickHandler={this.handleClick}/>
+                <div style={styles.page}>
+                    <div style={styles.scoreBoardTop}>
+
+                    </div>
+
+                    <div style={styles.game}>
+                        <ScoreCounter clickScore={this.state.clickCount} counterStyle={styles.scoreCounterStyle} CPS={this.state.clickerCPS} remainingTime={this.state.time}/>
+                        <ClickButton buttonStyle={styles.clickButtonStyle} clickHandler={this.handleClick}/>
+                    </div>
+
+                    <div style={styles.scoreBoardHistory}>
+
+                    </div>
+                </div>
             </React.Fragment>
         );
     }

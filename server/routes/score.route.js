@@ -59,9 +59,13 @@ router.route('/all').get((req, res, next) => {
   })
 
 
-  router.route('/history').get((req, res, next) => {
+  router.route('/top10').get((req, res, next) => {
     console.log(req.query.name)
-    scoreModel.find({username: req.params.name}, (error, data) => {
+    scoreModel
+    .find()
+    .sort({clickerCPS: -1})
+    .limit(10)
+    .exec(((error, data) => {
       if (error) {
         return next(error);
       } else {
@@ -69,7 +73,7 @@ router.route('/all').get((req, res, next) => {
           msg: data
         })
       }
-    })
+    }))
   })
 
 

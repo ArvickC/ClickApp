@@ -2,6 +2,13 @@ import React from 'react';
 import ClickButton from './ClickButton';
 import ScoreCounter from './ScoreCounter';
 import axios from 'axios';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import { TextField, Typography } from '@material-ui/core';
 
 // Styles
 const styles = {
@@ -60,9 +67,10 @@ class HomePage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-        time: 10,
-        clickCount: 0,
-        clickerCPS: 0
+            time: 10,
+            clickCount: 0,
+            clickerCPS: 0,
+            topScores: []
         };
     }
 
@@ -112,13 +120,17 @@ class HomePage extends React.Component {
         }
     }
 
+    componentDidMount() {
+        this.getTopScores();
+    }
+
     // Enables click button
     enableButton = () => {
         disableButton = false;
         this.setState({
-        time: 10,
-        clickCount: 0,
-        clickerCPS: 0
+            time: 10,
+            clickCount: 0,
+            clickerCPS: 0
         })
     }
 
@@ -126,30 +138,60 @@ class HomePage extends React.Component {
     handleClick = () => {
         console.log(disableButton);
         if(disableButton) return;
-        this.setState({
-        clickCount: this.state.clickCount + 1
+            this.setState({
+            clickCount: this.state.clickCount + 1
         });
         if(!counterStart) {
-        counterStart = true;
-        this.timerStart();
+            counterStart = true;
+            this.timerStart();
         }
     }
+
+    generate = () => {
+        return JSON.parse(localStorage.score).reverse().map((value) =>
+            <ListItem>
+                <ListItemText primary={value}/>
+            </ListItem>
+        );
+      }
+
+    getTopScores = () => {
+        let res = axios.get(url + '/score/top10')
+        .then((response) => {
+            console.log(response);
+            this.setState({topScores: response.data.msg})
+          }, (error) => {
+            console.log(error);
+        });
+    }
+
+    generateTopScores = () => {
+        return this.state.topScores.map((value) =>
+            <ListItem>
+                <ListItemText primary={value.clickerCPS + " " + value.username}/>
+            </ListItem>
+        );
+    }  
 
     render() {
         return(
             <React.Fragment>
                 <div style={styles.page}>
                     <div style={styles.scoreBoardTop}>
-
+                        {this.generateTopScores()}
                     </div>
 
                     <div style={styles.game}>
                         <ScoreCounter clickScore={this.state.clickCount} counterStyle={styles.scoreCounterStyle} CPS={this.state.clickerCPS} remainingTime={this.state.time}/>
                         <ClickButton buttonStyle={styles.clickButtonStyle} clickHandler={this.handleClick}/>
                     </div>
-
                     <div style={styles.scoreBoardHistory}>
-
+                    <Typography>
+                        Previous Scores
+                    </Typography>
+                    <List>
+                        {this.generate()}
+                    </List>
                     </div>
                 </div>
             </React.Fragment>
